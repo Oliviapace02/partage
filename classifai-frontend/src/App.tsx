@@ -27,6 +27,8 @@ import logo from "./logo.svg";
 import "./App.css";
 import { User } from "./models/user";
 import { ClassifaiContext } from "./context/classifai_context";
+import MenuBar from "./components/MenuBar";
+import Profile from "./components/Profile";
 export const baseAPIURL = "http://localhost:8000";
 
 function App() {
@@ -35,7 +37,10 @@ function App() {
   return (
     <Router>
       <ClassifaiContext.Provider value={{ user, setUser }}>
+        <MenuBar />
+
         <Routes>
+          <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/menu" element={<MenuPage />} />

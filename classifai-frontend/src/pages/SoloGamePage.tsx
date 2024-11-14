@@ -65,6 +65,7 @@ const SoloGamePage: React.FC = () => {
           motdepasse: user.motdepasse,
           scoreMax: score,
           username: user.username,
+          email: user.email,
         });
       }
     }
