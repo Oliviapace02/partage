@@ -29,6 +29,9 @@ const MenuBar: React.FC = () => {
 
   return (
     <Toolbar>
+      <Button onClick={() => navigate(user ? "/menu" : "/")}>
+        <Home />
+      </Button>
       <Button component={Link} to="/podium">
         <EmojiEvents />
       </Button>
