@@ -19,7 +19,6 @@ const LoginPage: React.FC = () => {
       const response = await axios.get(`${baseAPIURL}/users/${username}`); // Vérifie si c'est bien un GET
       console.log("Connexion réussie :", response.data);
       setUser(response.data);
-      navigate("/posts");
       navigate("/menu");
     } catch (error) {
       console.error("Erreur lors de la connexion", error);

@@ -13,7 +13,11 @@ const CategoryButtons: React.FC<CategoryButtonsProps> = ({ categories }) => {
   return (
     <Box display="flex" gap={2} mt={3}>
       {categories.map((category) => (
-        <Button key={category} variant="contained" onClick={() => handleChoice(category)}>
+        <Button
+          key={category}
+          variant="contained"
+          onClick={() => handleChoice(category)}
+        >
           {category}
         </Button>
       ))}
