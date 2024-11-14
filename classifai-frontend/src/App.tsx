@@ -18,6 +18,8 @@ import Box from "@mui/material/Box";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import LoginPage from "./pages/LoginPage";
+import Information from "./pages/information";
+
 import RegisterPage from "./pages/RegisterPage";
 import MenuPage from "./pages/MenuPage";
 import SoloGamePage from "./pages/SoloGamePage";
@@ -42,6 +44,7 @@ function App() {
         <Routes>
           <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/" element={<LoginPage />} />
+          <Route path="/information" element={<Information />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/solo" element={<SoloGamePage />} />
