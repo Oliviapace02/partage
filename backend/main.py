@@ -74,6 +74,11 @@ def get_users():
     with Session(dm.engine) as session:
         users = session.query(UserDB).all()
         return users
+@app.get("/podium")
+def get_users():
+    with Session(dm.engine) as session:
+        users = session.query(UserDB).order_by(desc(UserDB.scoreMax)).all() 
+    return users
 
 @app.get("/image")
 def get_image():
