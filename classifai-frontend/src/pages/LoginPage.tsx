@@ -16,10 +16,15 @@ const LoginPage: React.FC = () => {
   async function handleLogin(event: any) {
     event.preventDefault();
     try {
-      const response = await axios.get(`${baseAPIURL}/users/${username}`); // Vérifie si c'est bien un GET
-      console.log("Connexion réussie :", response.data);
-      setUser(response.data);
-      navigate("/menu");
+      if (username !== "" && password !== "") {
+        const response = await axios.get(`${baseAPIURL}/users/${username}`); // Vérifie si c'est bien un GET
+        console.log(response.data);
+        if (password === response.data.motdepasse) {
+          console.log("Connexion réussie :", response.data);
+          setUser(response.data);
+          navigate("/menu");
+        }
+      }
     } catch (error) {
       console.error("Erreur lors de la connexion", error);
     }
@@ -44,7 +49,7 @@ const LoginPage: React.FC = () => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <Button variant="outlined" onClick={handleLogin}>
-        Se connecter{" "}
+        Se connecter{""}
       </Button>
       <Button onClick={() => navigate("/register")}>S'inscrire</Button>
     </Box>

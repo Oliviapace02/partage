@@ -9,21 +9,24 @@ from sqlalchemy import select, desc
 from typing import Optional
 origins = ["http://localhost:3000"]
 from fastapi.middleware.cors import CORSMiddleware
+
+import os
+import random
+
+def fichier_aleatoire():
+    
+    dossier = os.path.abspath(os.path.join(__file__, '../..', 'classifai-frontend/public/img'))
+    fichiers = os.listdir(dossier)
+    fichiers = [f for f in fichiers if os.path.isfile(os.path.join(dossier, f))]
+    fichier_choisi = random.choice(fichiers)
+    
+    return {'source': fichier_choisi,  'isPanier': fichier_choisi.find('panier')!=-1}
+
 app = FastAPI()
-
-
-
-
 
 app.add_middleware(
    CORSMiddleware, allow_origins=origins, allow_credentials=True,   allow_methods=["*"], allow_headers=["*"],)
 
-# Initialiser l'application FastAPI
-
-# Initialiser la base de données et la session
-# engine = init_db()
-
-# Modèles Pydantic pour les utilisateurs et les parties
 class User(BaseModel):
     id: Optional[int] = None
     username: str
@@ -32,24 +35,12 @@ class User(BaseModel):
     scoreMax: Optional[int] = 0
     class Config:
         orm_mode = True
-    
-# class PartieAmis(BaseModel):
-#     id_partie: Optional[int] = None
-#     idUser1: int
-#     idUser2: int
-#     pointsUser1: Optional[int] = 0
-#     pointsUser2: Optional[int] = 0
-
+class UserScore(BaseModel):
+    id: int
+    scoreMax: int = 0
 
 dm = database_management("project_database", recreate=False)
 
-# # Dépendance pour obtenir une session de base de données
-# def get_db():
-#     db = get_session(engine)
-#     try:
-#         yield db
-#     finally:
-#         db.close()
 def find_user(username: str, session: Session):
     stm = select(UserDB).where(
         UserDB.username == username
@@ -84,6 +75,12 @@ def get_users():
         users = session.query(UserDB).all()
         return users
 
+@app.get("/image")
+def get_image():
+    image = fichier_aleatoire()
+    return image
+    
+
 
                 
 @app.post("/users")
@@ -116,6 +113,12 @@ def put_user(user: User):
         found_user.email = user.email
         found_user.motdepasse = user.motdepasse
         found_user.username = user.username
+        session.commit()
+@app.put("/userScore")
+def put_user(user: UserScore):
+    with Session(dm.engine) as session:
+        found_user = find_user_by_id(user.id, session)
+        found_user.scoreMax = user.scoreMax
         session.commit()
 
 
