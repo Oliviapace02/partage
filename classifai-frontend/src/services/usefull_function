@@ -1,0 +1,22 @@
+import * as fs from 'fs';
+import * as path from 'path';
+function getFilesInDirectory(directoryPath: string) {
+  try {
+    
+    const files = fs.readdirSync(directoryPath); 
+    const listFinal = files.map((file)=>file.match('panier')?
+    {name:file,panier:true}:
+    {name:file,panier:false})
+    return listFinal;
+  } catch (err) {
+    console.error("Erreur lors de la lecture du dossier:", err);
+    return [];
+  }
+}
+const imgDirectoryPath = path.join(__dirname, '..', 'img'); 
+// Afficher les fichiers dans img
+ function getImgList() {return getFilesInDirectory(imgDirectoryPath)}
+export default getImgList
+
+
+

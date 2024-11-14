@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Button, Box, Typography } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
-import GameImage from "../components/GameImage";
-import CategoryButtons from "../components/CategoryButtons";
+
 
 const MultiplayerGamePage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,8 +34,6 @@ const MultiplayerGamePage: React.FC = () => {
       <Typography variant="h5">
         {isAI ? "Affrontement contre l'IA" : "Affrontement contre un joueur"}
       </Typography>
-      <GameImage />
-      <CategoryButtons categories={categories} />
       <Typography variant="h6" mt={3}>
         Score: Vous {score.player} - {score.opponent} {isAI ? "IA" : "Adversaire"}
       </Typography>
