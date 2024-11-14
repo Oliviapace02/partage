@@ -70,7 +70,7 @@ const SoloGamePage: React.FC = () => {
       }
     }
   }
-
+  console.log(source);
   useEffect(() => {
     async function fetchImage() {
       try {

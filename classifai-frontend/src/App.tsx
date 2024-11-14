@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import LoginPage from "./pages/LoginPage";
+import Information from "./pages/information";
+
 import RegisterPage from "./pages/RegisterPage";
 import MenuPage from "./pages/MenuPage";
 import SoloGamePage from "./pages/SoloGamePage";
@@ -37,6 +39,7 @@ function App() {
         <Routes>
           <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/" element={<LoginPage />} />
+          <Route path="/information" element={<Information />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/solo" element={<SoloGamePage />} />
