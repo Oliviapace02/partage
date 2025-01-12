@@ -33,6 +33,16 @@ class UserDB(Base):
     motdepasse = Column(String, nullable=False)
     scoreMax = Column(Integer, nullable=True)
     
+    # Modèle de la table Partie
+class PartieDB(Base):
+    __tablename__ = 'parties'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_emetteur = Column(Integer, unique=False, nullable=False)
+    id_receveur= Column(Integer, unique=False, nullable=False)
+    score_receveur = Column(Integer, nullable=True)
+    score_emetteur = Column(Integer, nullable=True)
+    seed = Column(Integer, nullable=True)
+    
 
 # Modèle de la table PartieAmis
 # class PartieAmisDB(Base):

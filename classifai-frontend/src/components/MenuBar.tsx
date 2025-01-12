@@ -42,7 +42,7 @@ const MenuBar: React.FC = () => {
 
       {user ? (
         <>
-          <Button component={Link} to="/notification">
+          <Button component={Link} to="/notifications">
             <Notifications />
           </Button>
 
