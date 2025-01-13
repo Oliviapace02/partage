@@ -3,9 +3,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime
-from db_management import database_management, UserDB
+from db_management import PartieDB, database_management, UserDB
 from sqlalchemy.orm import Session
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, text
 from typing import Optional
 origins = ["http://localhost:3000"]
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +21,16 @@ def fichier_aleatoire():
     fichier_choisi = random.choice(fichiers)
     
     return {'source': fichier_choisi,  'isPanier': fichier_choisi.find('panier')!=-1}
+def liste_fichier_aleatoire(seed: int):
+    
+    dossier = os.path.abspath(os.path.join(__file__, '../..', 'classifai-frontend/public/img'))
+    fichiers = os.listdir(dossier)
+    # fichiers = [f for f in fichiers if os.path.isfile(os.path.join(dossier, f))]
+    random.seed(seed)
+    random.shuffle(fichiers)
+    # for i in range(0, len(liste_fichiers)):
+    #     liste_fichiers[i] = {'source': liste_fichiers[i],  'isPanier': liste_fichiers[i].find('panier')!=-1}
+    return fichiers
 
 app = FastAPI()
 
@@ -40,6 +50,12 @@ class UserScore(BaseModel):
     scoreMax: int = 0
 
 dm = database_management("project_database", recreate=False)
+with dm.engine.connect() as conn:
+    result = conn.execute(
+        text("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'")
+    )
+    tables = [row[0] for row in result]
+    print("Tables existantes :", tables)
 
 def find_user(username: str, session: Session):
     stm = select(UserDB).where(
@@ -57,6 +73,14 @@ def find_user_by_id(id: int, session: Session):
     found_user = res.scalar()
 
     return found_user
+def find_partie_by_id(id: int, session: Session):
+    stm = select(PartieDB).where(
+        PartieDB.id == id
+    )
+    res = session.execute(stm) 
+    found_partie = res.scalar()
+
+    return found_partie
 
 @app.get("/users/{username}")
 async def get_user(username: str):
@@ -84,6 +108,12 @@ def get_users():
 def get_image():
     image = fichier_aleatoire()
     return image
+    
+# @app.get("/image/{partieId}")
+# def get_images(partieId):
+#     seed = qqchose(partieId)
+#     imageList = liste_fichier_aleatoire(seed)
+#     return imageList
     
 
 
@@ -119,6 +149,7 @@ def put_user(user: User):
         found_user.motdepasse = user.motdepasse
         found_user.username = user.username
         session.commit()
+
 @app.put("/userScore")
 def put_user(user: UserScore):
     with Session(dm.engine) as session:
@@ -136,84 +167,18 @@ def delete_user(username):
         else:
             raise HTTPException(404, "User not found")
 
-# # Routes pour les utilisateurs
-# @app.post("/users")
-# def create_user(user: User, db: Session = Depends(get_db)):
-#     db_user = UserSQL(username=user.username, motdepasse=user.motdepasse, scoreMax=user.scoreMax)
-#     db.add(db_user)
-#     db.commit()
-#     db.refresh(db_user)
-#     return db_user
+####PARTIES
+@app.get("/parties")
+def get_parties():
+    with Session(dm.engine) as session:
+        parties = session.query(PartieDB).all()
+        print(parties)
+        if not parties:  # Vérifie si la liste est vide
+            raise HTTPException(status_code=404, detail="Aucune partie trouvée.")
+        return parties
 
-# @app.put("/users/{user_id}", response_model=User)
-# def update_user(user_id: int, user: User, db: Session = Depends(get_db)):
-#     db_user = db.query(UserSQL).filter(UserSQL.id == user_id).first()
-#     if not db_user:
-#         raise HTTPException(status_code=404, detail="User not found")
-
-#     # Mettre à jour les attributs de l'utilisateur
-#     db_user.username = user.username
-#     db_user.motdepasse = user.motdepasse
-#     db_user.scoreMax = user.scoreMax
-
-#     db.commit()  # Valider les changements dans la base de données
-#     db.refresh(db_user)  # Rafraîchir l'instance de l'utilisateur pour inclure les changements
-#     return db_user
-
-# @app.get("/users/{user_id}", response_model=User)
-# def get_user(user_id: int, db: Session = Depends(get_db)):
-#     user = db.query(UserSQL).filter(UserSQL.id == user_id).first()
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     return user
-
-# @app.get("/users/")
-# def get_user( db: Session = Depends(get_db)):
-#     user = db.query(UserSQL).all()
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     return user
-# # @app.get("/users")
-# # def get_users():
-# #     with Session(dm.engine) as session:
-# #         users = session.query(UserDB).all()
-# #         return users
-    
-# @app.delete("/users/{user_id}")
-# def delete_user(user_id: int, db: Session =Depends(get_db)):
-#     user = db.query(UserSQL).filter(UserSQL. id == user_id).first()
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     db.delete(user)
-#     db.commit()
-#     return {"message": "User deleted successfully"}
-
-# # Routes pour les parties
-# @app.post("/parties", response_model=PartieAmis)
-# def create_partie(partie: PartieAmis, db: Session = Depends(get_db)):
-#     db_partie = PartieAmisSQL(
-#         idUser1=partie.idUser1,
-#         idUser2=partie.idUser2,
-#         pointsUser1=partie.pointsUser1,
-#         pointsUser2=partie.pointsUser2
-#     )
-#     db.add(db_partie)
-#     db.commit()
-#     db.refresh(db_partie)
-#     return db_partie
-
-# @app.get("/parties/{partie_id}", response_model=PartieAmis)
-# def get_partie(partie_id: int, db: Session = Depends(get_db)):
-#     partie = db.query(PartieAmisSQL).filter(PartieAmisSQL.id_partie == partie_id).first()
-#     if not partie:
-#         raise HTTPException(status_code=404, detail="Partie not found")
-#     return partie
-
-# @app.delete("/parties/{partie_id}")
-# def delete_partie(partie_id: int, db: Session = Depends(get_db)):
-#     partie = db.query(PartieAmisSQL).filter(PartieAmisSQL.id_partie == partie_id).first()
-#     if not partie:
-#         raise HTTPException(status_code=404, detail="Partie not found")
-#     db.delete(partie)
-#     db.commit()
-#     return {"message": "Partie deleted successfully"}
+#     @app.get("/users")
+# def get_users():
+#     with Session(dm.engine) as session:
+#         users = session.query(UserDB).all()
+#         return users

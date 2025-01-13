@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { useEffect, useState } from "react";
-
+import Notification from "./pages/Notification";
 import LoginPage from "./pages/LoginPage";
 import Information from "./pages/information";
 
@@ -9,7 +9,6 @@ import RegisterPage from "./pages/RegisterPage";
 import MenuPage from "./pages/MenuPage";
 import SoloGamePage from "./pages/SoloGamePage";
 import MultiplayerMenuPage from "./pages/MultiplayerMenuPage";
-import MultiplayerGamePage from "./pages/MultiplayerGamePage";
 import "./App.css";
 import { User } from "./models/user";
 import { ClassifaiContext } from "./context/classifai_context";
@@ -38,14 +37,16 @@ function App() {
 
         <Routes>
           <Route path="/profile/:userId" element={<Profile />} />
+          <Route path="/party/:partyId" element={<Profile />} />
+
           <Route path="/" element={<LoginPage />} />
           <Route path="/information" element={<Information />} />
+          <Route path="/notifications" element={<Notification />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/solo" element={<SoloGamePage />} />
           <Route path="/podium" element={<PodiumPage rank={rank} />} />
           <Route path="/multiplayer" element={<MultiplayerMenuPage />} />
-          <Route path="/multiplayer/game" element={<MultiplayerGamePage />} />
         </Routes>
       </ClassifaiContext.Provider>
     </Router>

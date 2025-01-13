@@ -89,7 +89,6 @@ const SoloGamePage: React.FC = () => {
         <Button variant="outlined" onClick={() => navigate("/menu")}>
           Quitter
         </Button>
-        <Button variant="outlined">Pause</Button>
       </Box>
       {stillAlive ? (
         <>
