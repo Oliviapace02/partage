@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from db_management import PartieDB, database_management, UserDB
 from sqlalchemy.orm import Session
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, text
 from typing import Optional
 origins = ["http://localhost:3000"]
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,6 +50,12 @@ class UserScore(BaseModel):
     scoreMax: int = 0
 
 dm = database_management("project_database", recreate=False)
+with dm.engine.connect() as conn:
+    result = conn.execute(
+        text("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'")
+    )
+    tables = [row[0] for row in result]
+    print("Tables existantes :", tables)
 
 def find_user(username: str, session: Session):
     stm = select(UserDB).where(
@@ -143,6 +149,7 @@ def put_user(user: User):
         found_user.motdepasse = user.motdepasse
         found_user.username = user.username
         session.commit()
+
 @app.put("/userScore")
 def put_user(user: UserScore):
     with Session(dm.engine) as session:
@@ -165,8 +172,11 @@ def delete_user(username):
 def get_parties():
     with Session(dm.engine) as session:
         parties = session.query(PartieDB).all()
+        print(parties)
+        if not parties:  # Vérifie si la liste est vide
+            raise HTTPException(status_code=404, detail="Aucune partie trouvée.")
         return parties
-    
+
 #     @app.get("/users")
 # def get_users():
 #     with Session(dm.engine) as session:
