@@ -2,6 +2,7 @@
 import sqlalchemy.dialects.mysql.pymysql
 import sqlalchemy
 from sqlalchemy import (
+    Boolean,
     Column,
     Integer,
     String,
@@ -42,7 +43,13 @@ class UserDB(Base):
     
     # Modèle de la table Partie
 
-    
+    #notification, id notif, id reception, id opposant,
+class NotificationDB(Base):
+    __tablename__ = 'notifications'
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id_receveur = Column(String, unique=True, index=True, nullable=False)
+    id_opposant = Column(String, unique=True, index=True, nullable=False)
+    gagnant = Column(String, unique=True, index=True, nullable=False)
 
 # Modèle de la table PartieAmis
 # class PartieAmisDB(Base):
@@ -63,6 +70,7 @@ class UserDB(Base):
 # def get_session(engine):
 #     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 #     return SessionLocal()
+from sqlalchemy import text
 
 class database_management:
     def __init__(self, db_name: str, recreate: bool):
@@ -74,20 +82,30 @@ class database_management:
         if recreate:
             if database_exists(self.engine.url):
                 drop_database(self.engine.url)
-            self.create_db()  # Créer la base de données si nécessaire
+                print(f"Database {self.db_name} dropped!")
 
         if not database_exists(self.engine.url):
             self.create_db()
 
-        # Crée les tables si elles n'existent pas
-        if not sqlalchemy.inspect(self.engine).has_table("users"):
-            self.create_tables()
-        elif not sqlalchemy.inspect(self.engine).has_table("parties"):
-            self.create_tables()
+        # Vérifie et crée les tables si elles n'existent pas
+        self.check_and_create_tables()
 
     def create_db(self):
         create_database(self.engine.url)
         print(f"Database {self.db_name} created!")
+
+    def check_and_create_tables(self):
+        # Vérifie si les tables nécessaires existent et les crée si nécessaire
+        inspector = sqlalchemy.inspect(self.engine)
+        tables_to_check = ["users", "parties", "notifications"]
+
+        tables_missing = [table for table in tables_to_check if not inspector.has_table(table)]
+        
+        if tables_missing:
+            self.create_tables()
+            print(f"Tables {', '.join(tables_missing)} created successfully!")
+        else:
+            print("All necessary tables already exist.")
 
     def create_tables(self):
         # Crée toutes les tables définies dans les modèles
@@ -96,9 +114,55 @@ class database_management:
             # Crée les séquences si elles n'existent pas déjà
             conn.execute(text("CREATE SEQUENCE IF NOT EXISTS partie_id_seq"))
             conn.execute(text("CREATE SEQUENCE IF NOT EXISTS user_id_seq"))
-            
-            print("Tables created successfully!")
+            conn.execute(text("CREATE SEQUENCE IF NOT EXISTS notification_id_seq"))
+            print("Sequences created successfully!")
 
+    def drop_table(self, table_name: str):
+        # Supprime une table spécifique
+        with self.engine.connect() as conn:
+            conn.execute(text(f"DROP TABLE IF EXISTS {table_name} CASCADE"))
+            print(f"Table {table_name} dropped successfully!")
+
+    def recreate_table(self, table_name: str):
+        # Supprime et recrée une table spécifique
+        self.drop_table(table_name)
+        self.create_tables()
+
+
+# class database_management:
+#     def __init__(self, db_name: str, recreate: bool):
+#         self.engine = create_engine(
+#             f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{db_name}"
+#         )
+#         self.db_name = db_name
+
+#         if recreate:
+#             if database_exists(self.engine.url):
+#                 drop_database(self.engine.url)
+#             self.create_db()  # Créer la base de données si nécessaire
+
+#         if not database_exists(self.engine.url):
+#             self.create_db()
+
+#         # Crée les tables si elles n'existent pas
+#         if not sqlalchemy.inspect(self.engine).has_table("users"):
+#             self.create_tables()
+#         elif not sqlalchemy.inspect(self.engine).has_table("parties"):
+#             self.create_tables()
+
+#     def create_db(self):
+#         create_database(self.engine.url)
+#         print(f"Database {self.db_name} created!")
+
+#     def create_tables(self):
+#         # Crée toutes les tables définies dans les modèles
+#         Base.metadata.create_all(self.engine)
+#         with self.engine.connect() as conn:
+#             # Crée les séquences si elles n'existent pas déjà
+#             conn.execute(text("CREATE SEQUENCE IF NOT EXISTS partie_id_seq"))
+#             conn.execute(text("CREATE SEQUENCE IF NOT EXISTS user_id_seq"))
+            
+#             print("Tables created successfully!")
 # class database_management:
 #     def __init__(self, db_name: str, recreate: bool):
 #         self.engine = create_engine(

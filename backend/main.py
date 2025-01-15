@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime
-from db_management import PartieDB, database_management, UserDB
+from db_management import NotificationDB, PartieDB, database_management, UserDB
 from sqlalchemy.orm import Session
 from sqlalchemy import select, desc, text
 from typing import Optional
@@ -45,11 +45,33 @@ class User(BaseModel):
     scoreMax: Optional[int] = 0
     class Config:
         orm_mode = True
+
+class Partie(BaseModel):
+    id: Optional[int] = None
+    id_receveur: Optional[int]
+    score_emetteur: Optional[int]
+    score_receveur: Optional[int]
+    seed: Optional[int]
+    class Config:
+        orm_mode = True
+
+class Notification(BaseModel):   
+    id: Optional[int] = None
+    id_receveur: Optional[int]
+    id_opposant: Optional[int]
+    gagnant: Optional[int]
+
+    class Config:
+        orm_mode = True
+
 class UserScore(BaseModel):
     id: int
     scoreMax: int = 0
 
 dm = database_management("project_database", recreate=False)
+dm.drop_table("notifications")
+
+
 with dm.engine.connect() as conn:
     result = conn.execute(
         text("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'")
@@ -65,6 +87,8 @@ def find_user(username: str, session: Session):
     found_user = res.scalar()
 
     return found_user
+
+
 def find_user_by_id(id: int, session: Session):
     stm = select(UserDB).where(
         UserDB.id == id
@@ -73,6 +97,7 @@ def find_user_by_id(id: int, session: Session):
     found_user = res.scalar()
 
     return found_user
+
 def find_partie_by_id(id: int, session: Session):
     stm = select(PartieDB).where(
         PartieDB.id == id
@@ -81,6 +106,15 @@ def find_partie_by_id(id: int, session: Session):
     found_partie = res.scalar()
 
     return found_partie
+
+def find_notification_by_id(id: int, session: Session):
+    stm = select(NotificationDB).where(
+        NotificationDB.id == id
+    )
+    res = session.execute(stm) 
+    found_notification = res.scalar()
+
+    return found_notification
 
 @app.get("/users/{username}")
 async def get_user(username: str):
@@ -140,6 +174,46 @@ def add_user(user: User):
             session.refresh(new_user)
         return user
 
+@app.post("/parties")
+def add_partie(partie: Partie):
+    with Session(dm.engine) as session:
+        found_partie : PartieDB|None =   None #find_user(user.username, session)
+        if found_partie is not None:
+            return found_partie
+        else:
+
+            new_partie = PartieDB(
+                id_receveur=partie.id_receveur,
+                score_emetteur=partie.score_emetteur,
+                score_receveur=partie.score_receveur,
+                seed=partie.seed,
+            )
+            
+            session.add(new_partie)
+            session.commit()
+            session.refresh(new_partie)
+        return partie
+
+@app.post("/notifications")
+def add_notification(notification: Notification):
+    with Session(dm.engine) as session:
+        found_notification : NotificationDB|None =   None #find_user(user.username, session)
+        print ('ici je print', found_notification)
+        if found_notification is not None:
+            return found_notification
+        else:
+
+            new_notification = NotificationDB(
+                id_receveur=notification.id_receveur,
+                id_opposant=notification.id_opposant,
+                gagnant=notification.gagnant,
+            )
+            
+            session.add(new_notification)
+            session.commit()
+            session.refresh(new_notification)
+        return notification
+    
 
 @app.put("/users")
 def put_user(user: User):
@@ -163,9 +237,24 @@ def delete_user(username):
     with Session(dm.engine) as session:
         found_user = find_user(username, session)
         if found_user is not None:
+            # Suppression de l'utilisateur
+            session.delete(found_user)
             session.commit()
+            return {"message": "User deleted successfully"}
         else:
-            raise HTTPException(404, "User not found")
+            raise HTTPException(status_code=404, detail="User not found")
+        
+@app.delete("/partie/{id}")
+def delete_partie(id):
+    with Session(dm.engine) as session:
+        found_partie = find_partie_by_id(id, session)
+        if found_partie is None:
+            raise HTTPException(status_code=404, detail="Partie not found")
+        
+        # Suppression de la partie
+        session.delete(found_partie)
+        session.commit()
+
 
 ####PARTIES
 @app.get("/parties")
@@ -176,9 +265,21 @@ def get_parties():
         if not parties:  # Vérifie si la liste est vide
             raise HTTPException(status_code=404, detail="Aucune partie trouvée.")
         return parties
+    
+@app.get("/Notifications")
+def get_notifications():
+    with Session(dm.engine) as session:
+        notifications = session.query(NotificationDB).all()
+        print(notifications)
+        if not notifications:  # Vérifie si la liste est vide
+            raise HTTPException(status_code=404, detail="Aucune partie trouvée.")
+        return notifications
 
 #     @app.get("/users")
 # def get_users():
 #     with Session(dm.engine) as session:
 #         users = session.query(UserDB).all()
 #         return users
+
+
+#  notification, id notif, id reception, id opposant, id winner. créer, recuperer, delete.
