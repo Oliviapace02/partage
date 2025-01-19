@@ -1,0 +1,16 @@
+                                                                  List of databases
+       Name       |       Owner       | Encoding |   Collate   |    Ctype    | ICU Locale | Locale Provider |            Access privileges            
+------------------+-------------------+----------+-------------+-------------+------------+-----------------+-----------------------------------------
+ catan            | devweb_user_admin | UTF8     | fr_FR.UTF-8 | fr_FR.UTF-8 |            | libc            | devweb_user_admin=CTc/devweb_user_admin
+ gestcli          | gestcliadmin      | UTF8     | fr_FR.UTF-8 | fr_FR.UTF-8 |            | libc            | gestcliadmin=CTc/gestcliadmin
+ postgres         | postgres          | UTF8     | fr_FR.UTF-8 | fr_FR.UTF-8 |            | libc            | 
+ project_database | postgres          | UTF8     | fr_FR.UTF-8 | fr_FR.UTF-8 |            | libc            | =Tc/postgres                           +
+                  |                   |          |             |             |            |                 | postgres=CTc/postgres                  +
+                  |                   |          |             |             |            |                 | devweb_user_admin=CTc/postgres
+ projectdatabase  | admin             | UTF8     | fr_FR.UTF-8 | fr_FR.UTF-8 |            | libc            | admin=CTc/admin
+ template0        | postgres          | UTF8     | fr_FR.UTF-8 | fr_FR.UTF-8 |            | libc            | =c/postgres                            +
+                  |                   |          |             |             |            |                 | postgres=CTc/postgres
+ template1        | postgres          | UTF8     | fr_FR.UTF-8 | fr_FR.UTF-8 |            | libc            | =c/postgres                            +
+                  |                   |          |             |             |            |                 | postgres=CTc/postgres
+(7 rows)
+

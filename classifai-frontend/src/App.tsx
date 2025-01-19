@@ -16,11 +16,16 @@ import MenuBar from "./components/MenuBar";
 import Profile from "./components/Profile";
 import axios from "axios";
 import PodiumPage from "./pages/PodiumPage";
+import { NotifWin } from "./models/notifwin";
+import { NotifChall } from "./models/notifchall";
 export const baseAPIURL = "http://localhost:8000";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [rank, setRank] = useState<User[]>([]);
+  const [notifWin, setNotifWin] = useState<NotifWin[]>([]);
+  const [notifChall, setNotifChall] = useState<NotifChall[]>([]);
+
   useEffect(() => {
     async function getRanking() {
       const request = await axios.get(`${baseAPIURL}/podium`);
@@ -29,7 +34,17 @@ function App() {
     }
     getRanking();
   }, []);
-
+  useEffect(() => {
+    async function getNotifs() {
+      if (user !== null) {
+        const request = await axios.get(`${baseAPIURL}/Notifs/${user.id}`);
+        const values = request.data;
+        setNotifWin(values[0]);
+        setNotifChall(values[1]);
+      }
+    }
+    getNotifs();
+  }, [user]);
   return (
     <Router>
       <ClassifaiContext.Provider value={{ user, setUser }}>
@@ -41,7 +56,15 @@ function App() {
 
           <Route path="/" element={<LoginPage />} />
           <Route path="/information" element={<Information />} />
-          <Route path="/notifications" element={<Notification />} />
+          <Route
+            path="/notifications"
+            element={
+              <Notification
+                listNotifChall={notifChall}
+                listNotifWin={notifWin}
+              />
+            }
+          />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/solo" element={<SoloGamePage />} />
