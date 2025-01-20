@@ -58,6 +58,13 @@ class Partie_a_deux(BaseModel):
         from_attributes = True
 
 
+class Double_id(BaseModel):
+    id_emetteur: Optional[int]
+    id_receveur: Optional[int]
+    class Config:
+        from_attributes = True
+
+
 # class DuoUser():
 #     id_emetteur: int
 #     id_receveur: int
@@ -128,6 +135,27 @@ def find_partie_by_id(id: int, session: Session):
     found_partie = res.scalar()
 
     return found_partie
+
+
+def liste_fichier_aleatoire(seed: int):
+    
+    dossier = os.path.abspath(os.path.join(__file__, '../..', 'classifai-frontend/public/img'))
+    fichiers = os.listdir(dossier)
+    print(seed)
+    random.seed(seed)
+    random.shuffle(fichiers)
+    return fichiers
+
+
+
+@app.get("/image/{partieId}")
+def get_images(partieId):
+    with Session(dm.engine) as session:
+        seed = find_partie_by_id(partieId, session).seed
+        imageList = liste_fichier_aleatoire(seed)
+        return imageList
+
+
 @app.put("/partie_a_deux_Score/{partie_id}")
 def put_partieScore(partie_id : int, multiScore: MultiplayerScore):
     with Session(dm.engine) as session:
@@ -234,6 +262,8 @@ def get_users():
 def get_image():
     image = fichier_aleatoire()
     return image
+
+
                 
 @app.post("/users")
 def add_user(user: User):
@@ -257,14 +287,15 @@ def add_user(user: User):
             session.refresh(new_user)
         return user
 
+
 @app.post("/parties_a_deux")
-def add_partie(id_emetteur: int, id_receveur: int):
+def add_partie(double_id :Double_id):
     with Session(dm.engine) as session:
 
 
         new_partie = Partie_a_deuxDB(
-            id_emetteur =id_emetteur,
-            id_receveur=id_receveur,
+            id_emetteur =double_id.id_emetteur,
+            id_receveur=double_id.id_receveur,
             score_emetteur=-1,
             score_receveur=-1,
             seed=random.randint(0,99999),
@@ -329,7 +360,16 @@ def delete_notif(id: int):
             return {"message": "foundNotif deleted successfully"}
         else:
             raise HTTPException(status_code=404, detail="Notif not found")
-           
+
+@app.delete("/parties_a_deux/{id}")           
+def delete_partie_requete(id: int ):
+    with Session(dm.engine) as session:
+
+        found_partie = find_partie_by_id(id, session)
+        if found_partie is None:
+            raise HTTPException(status_code=404, detail="Partie not found")
+        session.delete(found_partie)
+        session.commit()
 
 # @app.delete("/Notifs/{id}")
 # def delete_notif(id):
@@ -369,39 +409,41 @@ def get_notifications(id: int):
         
    
 
-        challengeur = (
+    challengeur = (
         session.query(Partie_a_deuxDB, UserDB)
         .join(UserDB, Partie_a_deuxDB.id_receveur == UserDB.id)
         .filter(Partie_a_deuxDB.score_emetteur == -1)
-        .filter(UserDB.id == id)
-
-        .all()
+        .filter(Partie_a_deuxDB.id_emetteur == id).all()
     )
     result1 = []
-    for partie, user in challengeur:
-        result1.append({
-            'partie_id': partie.id,
-            'username': user.username  # Adapte selon les attributs réels de UserDB
-        })
+    if challengeur!= []:
+        for partie, user in challengeur:
+            print("b")
+
+            result1.append({
+                'partie_id': partie.id,
+                'username': user.username  # Adapte selon les attributs réels de UserDB
+            })
 
     challenger = (
         session.query(Partie_a_deuxDB, UserDB)
         .join(UserDB, Partie_a_deuxDB.id_emetteur == UserDB.id)
-        .filter(Partie_a_deuxDB.score_receveur == -1)        
-        .filter(UserDB.id == id)
-
-        .all()
+        .filter(Partie_a_deuxDB.score_receveur == -1)
+        .filter(Partie_a_deuxDB.id_receveur == id).all()
     )
+    print(challenger)
     result2 = []
-    for partie, user in challenger:
-        result2.append({
-            'partie_id': partie.id,
-            'username': user.username  # Adapte selon les attributs réels de UserDB
-        })
+    if challenger!= []:
+        for partie, user in challenger:
+            print("b")
 
-
-        challenge =  result1 + result2
-        return [resultA,challenge]
+            result2.append({
+                'partie_id': partie.id,
+                'username': user.username  # Adapte selon les attributs réels de UserDB
+            })
+    challenge =  result1 + result2
+    return [resultA,challenge]
+        
 @app.get("/Notifs")
 def get_notifications():
     with Session(dm.engine) as session:

@@ -8,8 +8,12 @@ const MultiplayerMenuPage: React.FC = () => {
   return (
     <Box display="flex" flexDirection="column" alignItems="center" mt={10}>
       <Typography variant="h4">Mode Multijoueur</Typography>
-      <Button variant="contained" onClick={() => navigate("/multiplayer/game")}>Choisir un adversaire</Button>
-      <Button variant="contained" onClick={() => navigate("/multiplayer/game")}>Affronter l'IA</Button>
+      <Button variant="contained" onClick={() => navigate("/Adversaire")}>
+        Choisir un adversaire
+      </Button>
+      <Button variant="contained" onClick={() => navigate("/multiplayer/game")}>
+        Affronter l'IA
+      </Button>
     </Box>
   );
 };

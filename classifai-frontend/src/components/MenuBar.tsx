@@ -7,8 +7,11 @@ import { PermDeviceInformation } from "@mui/icons-material";
 import { EmojiEvents } from "@mui/icons-material";
 import { Notifications } from "@mui/icons-material";
 import LoginPage from "../pages/LoginPage";
-
-const MenuBar: React.FC = () => {
+interface NotifProps {
+  reload: number;
+  iWantToReload: any;
+}
+const MenuBar: React.FC<NotifProps> = ({ iWantToReload, reload }) => {
   const { user, setUser } = useContext(ClassifaiContext);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -42,7 +45,13 @@ const MenuBar: React.FC = () => {
 
       {user ? (
         <>
-          <Button component={Link} to="/notifications">
+          <Button
+            onClick={() => {
+              iWantToReload(reload + 1);
+            }}
+            component={Link}
+            to="/notifications"
+          >
             <Notifications />
           </Button>
 

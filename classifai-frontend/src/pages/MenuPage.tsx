@@ -8,8 +8,12 @@ const MenuPage: React.FC = () => {
   return (
     <Box display="flex" flexDirection="column" alignItems="center" mt={10}>
       <Typography variant="h4">Menu Principal</Typography>
-      <Button variant="contained" onClick={() => navigate("/solo")}>Mode Solo</Button>
-      <Button variant="contained" onClick={() => navigate("/multiplayer")}>Mode Multijoueur</Button>
+      <Button variant="contained" onClick={() => navigate("/solo")}>
+        Mode Solo
+      </Button>
+      <Button variant="contained" onClick={() => navigate("/multiplayerMenu")}>
+        Mode Multijoueur
+      </Button>
     </Box>
   );
 };

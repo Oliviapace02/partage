@@ -27,7 +27,14 @@ const SoloGamePage: React.FC = () => {
     }, 10);
     return () => clearInterval(intervalId);
   }, [stillAlive]);
-
+  useEffect(() => {
+    if (!stillAlive) {
+      axios.put(`${baseAPIURL}/userScore`, {
+        id: user!.id,
+        scoreMax: score,
+      });
+    }
+  }, [stillAlive]);
   async function handleRestart() {
     try {
       const img = await axios.get(`${baseAPIURL}/image`);
@@ -70,7 +77,6 @@ const SoloGamePage: React.FC = () => {
       }
     }
   }
-  console.log(source);
   useEffect(() => {
     async function fetchImage() {
       try {

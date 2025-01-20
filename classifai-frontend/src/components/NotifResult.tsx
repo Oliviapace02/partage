@@ -8,9 +8,17 @@ interface NotifPlayProps {
   opponentName: string;
   notifId: number;
   win: boolean;
+  reload: number;
+  iWantToReload: any;
 }
 
-const NotifResult = ({ opponentName, notifId, win }: NotifPlayProps) => {
+const NotifResult = ({
+  opponentName,
+  notifId,
+  win,
+  reload,
+  iWantToReload,
+}: NotifPlayProps) => {
   const [canBeSee, setCanBeSee] = useState(true);
   const navigate = useNavigate();
   return (
@@ -39,6 +47,7 @@ const NotifResult = ({ opponentName, notifId, win }: NotifPlayProps) => {
                 // const res = client.delete(`/partie/${notifId}`);
                 setCanBeSee(false);
                 axios.delete(`${baseAPIURL}/Notifs/${notifId}`);
+                iWantToReload(reload + 1);
               }}
             >
               Supprimer la Notification

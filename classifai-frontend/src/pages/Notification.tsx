@@ -11,11 +11,15 @@ import NotifResult from "../components/NotifResult";
 interface NotificationsChallProps {
   listNotifChall: NotifChall[];
   listNotifWin: NotifWin[];
+  reload: number;
+  iWantToReload: any;
 }
 
 const Notification: React.FC<NotificationsChallProps> = ({
   listNotifChall,
   listNotifWin,
+  iWantToReload,
+  reload,
 }) => {
   return (
     <div
@@ -31,6 +35,9 @@ const Notification: React.FC<NotificationsChallProps> = ({
           <NotifPlay
             opponentName={notifChallenge.username}
             partyId={notifChallenge.partie_id}
+            key={notifChallenge.partie_id}
+            reload={reload}
+            iWantToReload={iWantToReload}
           />
         );
       })}
@@ -40,6 +47,9 @@ const Notification: React.FC<NotificationsChallProps> = ({
             opponentName={notifWin.username}
             notifId={notifWin.id}
             win={notifWin.gagnant}
+            key={notifWin.id}
+            reload={reload}
+            iWantToReload={iWantToReload}
           />
         );
       })}
