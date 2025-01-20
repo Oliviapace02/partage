@@ -18,9 +18,7 @@ const LoginPage: React.FC = () => {
     try {
       if (username !== "" && password !== "") {
         const response = await axios.get(`${baseAPIURL}/users/${username}`); // Vérifie si c'est bien un GET
-        console.log(response.data);
         if (password === response.data.motdepasse) {
-          console.log("Connexion réussie :", response.data);
           setUser(response.data);
           navigate("/menu");
         }

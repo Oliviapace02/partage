@@ -20,7 +20,6 @@ const RegisterPage: React.FC = () => {
         scoreMax: 0,
       });
 
-      console.log("Création réussie :", "poupoupou");
       navigate("/");
     } catch (error) {
       console.error("Erreur lors de la création", error);

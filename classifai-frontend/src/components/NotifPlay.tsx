@@ -7,9 +7,16 @@ import { useNavigate } from "react-router-dom";
 interface NotifPlayProps {
   opponentName: string;
   partyId: number;
+  reload: number;
+  iWantToReload: any;
 }
 
-const NotifPlay = ({ opponentName, partyId }: NotifPlayProps) => {
+const NotifPlay = ({
+  opponentName,
+  partyId,
+  iWantToReload,
+  reload,
+}: NotifPlayProps) => {
   const [canBeSee, setCanBeSee] = useState(true);
   const navigate = useNavigate();
   return (
@@ -37,8 +44,10 @@ const NotifPlay = ({ opponentName, partyId }: NotifPlayProps) => {
               style={{ color: "red" }}
               onClick={() => {
                 const client = axios.create({ baseURL: baseAPIURL });
-                // const res = client.delete(`/partie/${partyId}`);
+                // const res = client.delete(`/partie/${notifId}`);
                 setCanBeSee(false);
+                axios.delete(`${baseAPIURL}/parties_a_deux/${partyId}`);
+                iWantToReload(reload + 1);
               }}
             >
               Refuser
