@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import axios from "axios";
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { baseAPIURL } from "../App";
 import NotifPlay from "../components/NotifPlay";
@@ -21,6 +21,9 @@ const Notification: React.FC<NotificationsChallProps> = ({
   iWantToReload,
   reload,
 }) => {
+  useEffect(() => {
+    iWantToReload(reload + 1);
+  }, []);
   return (
     <div
       style={{
